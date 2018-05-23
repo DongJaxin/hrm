@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrm.notice.dao.INoticeDao">
+
+	<select id="selectNoticeCount" resultType="int">
+		select count(*) from notice_inf 
+		<where>
+			<if test="title != null">
+				title like '%' #{title} '%'
+			</if>
+			<if test="content != null">
+				and content like '%' #{content} '%'
+			</if>
+		</where>
+	</select>	
+	
+	<select id="selectUserById" resultType="User">
+		select id,username from user_inf where id = #{id}
+	</select>
+	
+	<resultMap type="Notice" id="noticeMap">
+		<id column="id" property="id"/>
+		<result column="create_date" property="createDate"/>
+		<association property="user"
+			javaType="User"
+			select="selectUserById"
+			column="user_id"/>
+	</resultMap>
+	
+	<select id="selectNotice" resultMap="noticeMap">
+		select * from notice_inf 
+		<where>
+			<if test="title != null">
+				title like '%' #{title} '%'
+			</if>
+			<if test="content != null">
+				and content like '%' #{content} '%'
+			</if>
+		</where>
+		limit #{start},#{pageSize}
+	</select>
+	
+	<insert id="insertNotice">
+		insert into notice_inf (title,content,user_id) values(#{title},#{content},#{user.id})
+	</insert>
+	
+	<select id="selectNoticeById" resultType="Notice">
+		select * from notice_inf where id = #{id}
+	</select>
+	
+	<update id="updateNotcie">
+		update notice_inf set title=#{title},content=#{content},user_id=#{user.id} where id = #{id}
+	</update>
+	
+	<delete id="deleteNotice">
+		delete from notice_inf where id in 
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+	
+	
+	
+</mapper>
